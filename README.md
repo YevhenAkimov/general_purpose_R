@@ -1,2 +1,2 @@
-# general_purpose_R
+# general-purpose-R
 custom helper functions 
