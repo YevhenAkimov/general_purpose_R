@@ -1,4 +1,10 @@
 
+MinMax=function (data, min, max) {
+  data2 <- data
+  data2[data2 > max] <- max
+  data2[data2 < min] <- min
+  return(data2)
+}
 
 min_max_normalization <- function(x, new_min=0, new_max=1) {
 if (length(x) == 1) {
