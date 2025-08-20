@@ -6,6 +6,47 @@ MinMax=function (data, min, max) {
   return(data2)
 }
 
+
+MinMaxQuant=function(data, q=0.1 , low_q=NULL, high_q=NULL){
+  if (!is.null(q)){
+    if (sign(0.5-q)==-1) {
+      low_q=1-q
+      high_q=q
+    } else {
+      low_q=q
+      high_q=1-q
+    }
+    
+    if (is.null(low_q)){
+      low_q=q
+    }
+    if (is.null(high_q)){
+      high_q=q
+    }
+  } else if (!is.null(low_q) & !is.null(high_q)){
+    ## check if low_q < high_q
+    if (low_q > high_q){
+      stop("Error low_q > high_q")
+    }
+    
+  } else {
+    stop("Error: q or low_q and high_q should be provided")
+  }
+  # print(low_q)
+  # print(high_q)
+  # 
+  min=quantile(data,low_q,na.rm = T)
+  max=quantile(data,high_q,na.rm = T)
+  # 
+  # print(paste("min:",min))
+  # print(paste("max:",max))
+  
+  data[data > max] <- max
+  data[data < min] <- min
+  return(data)
+  
+}
+
 min_max_normalization <- function(x, new_min=0, new_max=1) {
 if (length(x) == 1) {
     return(new_min)
