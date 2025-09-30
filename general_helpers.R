@@ -215,3 +215,49 @@ summarize_columns <- function(data,
   summarized_data$cluster <- NULL
   summarized_data
 }
+
+summarize_over_rows_given_colgroup <- function(mat, groups, func1,retain_colnames=F) {
+  # Validate that 'mat' is a matrix
+  if (!is.matrix(mat)) {
+    stop("The first argument 'mat' must be a matrix.")
+  }
+  
+  # Validate that 'groups' is a vector with length equal to the number of columns in 'mat'
+  if (length(groups) != ncol(mat)) {
+    stop("Length of 'groups' must match the number of columns in 'mat'.")
+  }
+  
+  # Identify unique groups
+  unique_groups <- unique(groups)
+  
+  # Initialize a matrix to store the summarized results
+  # Number of rows remains the same, number of columns equals the number of unique groups
+  result <- matrix(NA, nrow = nrow(mat), ncol = length(unique_groups))
+
+# Assign column names based on unique groups for clarity
+colnames(result) <- unique_groups
+
+# Iterate over each row of the matrix
+for (i in 1:nrow(mat)) {
+  # Extract the current row
+  row_values <- mat[i, ]
+  
+  # Apply the summary function to each group within the row
+
+  summarized_values <- sapply(unique_groups, function(g) {
+    func1(row_values[groups == g])
+  })
+  
+  # Store the summarized values in the result matrix
+  result[i, ] <- summarized_values
+}
+
+if (retain_colnames) {
+ 
+if (!is.null(rownames(mat))) {
+  rownames(result) <- rownames(mat)
+} }
+
+return(result)
+}
+
