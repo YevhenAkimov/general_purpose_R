@@ -1,4 +1,10 @@
-
+one_to_rowmax <- function(x) {
+  x <- as.matrix(x)
+  i <- max.col(x, ties.method = "first")
+  out <- matrix(0L, nrow(x), ncol(x))
+  out[cbind(seq_len(nrow(x)), i)] <- 1L
+  out
+}
 MinMax=function (data, min, max) {
   data2 <- data
   data2[data2 > max] <- max
