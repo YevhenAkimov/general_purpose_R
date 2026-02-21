@@ -1,7 +1,7 @@
 one_to_rowmax <- function(x) {
   x <- as.matrix(x)
   i <- max.col(x, ties.method = "first")
-  out <- matrix(0L, nrow(x), ncol(x))
+  out <- matrix(0L, nrow(x), ncol(x), dimnames = dimnames(x))
   out[cbind(seq_len(nrow(x)), i)] <- 1L
   out
 }
