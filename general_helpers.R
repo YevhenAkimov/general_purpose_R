@@ -5,6 +5,14 @@ one_to_rowmax <- function(x) {
   out[cbind(seq_len(nrow(x)), i)] <- 1L
   out
 }
+which.colMaxs <- function(mat) {
+  apply(mat, 2, which.max)
+}
+
+which.colMins <- function(mat) {
+  apply(mat, 2, which.min)
+}
+
 MinMax=function (data, min, max) {
   data2 <- data
   data2[data2 > max] <- max
