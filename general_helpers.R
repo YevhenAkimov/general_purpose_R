@@ -1,3 +1,91 @@
+
+
+summarize_by_cl <- function(FC, cluster_vector, fun = mean, order_rows = T,indices=T) {
+  # Ensure FC is a data frame
+  if (!is.data.frame(FC)) {
+    stop("FC must be a data frame.")
+  }
+  
+  # Order cluster_vector if required
+  if (order_rows) {
+    if (is.null(rownames(FC))) {
+      stop("FC must have row names when order_rows is TRUE.")
+    }
+    if (is.null(names(cluster_vector))) {
+      stop("cluster_vector must have  names when order_rows is TRUE.")
+    }
+    cluster_vector <- cluster_vector[rownames(FC)]
+  }
+  
+  # Convert cluster_vector to factor
+  cluster_vector <- as.factor(cluster_vector)
+  
+  # Identify numeric and non-numeric columns
+  numeric_cols <- sapply(FC, is.numeric)
+  non_numeric_cols <- !numeric_cols
+  
+  # Initialize list to store summarized data
+  summarized_list <- list()
+  
+  # Summarize numeric columns
+  if (any(numeric_cols)) {
+    summarized_numeric <- aggregate(FC[, numeric_cols, drop = FALSE],
+                                    by = list(cluster = cluster_vector),
+                                    FUN = fun)
+    summarized_list$numeric <- summarized_numeric
+  }
+  
+  # Function to summarize non-numeric columns
+  summarize_non_numeric <- function(x) {
+    unique_vals <- unique(x)
+    if (length(unique_vals) == 1) {
+      return(unique_vals)
+    } else {
+      message("WARNING, Non-numeric column has multiple values within a cluster. Taking first")
+      return(unique_vals[1])
+    }
+  }
+  
+  # Summarize non-numeric columns
+  if (any(non_numeric_cols)) {
+    summarized_non_numeric <- aggregate(FC[, non_numeric_cols, drop = FALSE],
+                                        by = list(cluster = cluster_vector),
+                                        FUN = summarize_non_numeric)
+    summarized_list$non_numeric <- summarized_non_numeric
+  }
+  
+  # Combine summarized data
+  if (length(summarized_list) == 2) {
+    
+    summarized_data <- merge(summarized_list$numeric, summarized_list$non_numeric, by = "cluster")
+    print(colnames(summarized_data))
+  } else if (length(summarized_list) == 1) {
+    
+    summarized_data <- summarized_list[[1]]
+  } else {
+    stop("No columns to summarize.")
+  }
+  
+  if (indices){
+    # Add a column for row indices as lists
+    indices <- tapply(seq_along(cluster_vector), cluster_vector, function(x) x)
+    indices_df <- data.frame(cluster = names(indices), indices = I(unname(indices)), row.names = NULL)
+    
+    # Merge indices with summarized data
+    summarized_data <- merge(summarized_data, indices_df, by = "cluster")
+  }
+
+  
+  # Set row names and remove the 'cluster' column
+  rownames(summarized_data) <- summarized_data$cluster
+  summarized_data$cluster <- NULL
+  
+  return(summarized_data)
+}
+
+
+
+                      
 one_to_rowmax <- function(x) {
   x <- as.matrix(x)
   i <- max.col(x, ties.method = "first")
